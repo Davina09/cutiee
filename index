@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>LOVE Video Showcase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body { 
+      margin:0;
+      background:black;
+       display:flex; 
+       flex-direction:column; 
+       align-items:center; 
+       height:100vh; 
+       color:white; 
+       font-family:'Cinzel Decorative',serif; 
+      }
+    .main-video { 
+      flex:1; width:1260px; 
+      height:800px; object-fit:cover; 
+      background:black; 
+      pointer-events:none; 
+    }
+    .side-text { 
+      position:absolute; 
+      top:50%; 
+      left:40px; 
+      transform:translateY(-50%); 
+      color:white; 
+      z-index:10; 
+      text-align:left; 
+      line-height:1.3; 
+    }
+    .side-text .small {
+    font-size:28px;
+  } 
+    .side-text .big{
+      font-size:56px;
+      font-weight:bold;
+    }
+    .play-btn,.more-btn{
+      margin-top:20px;
+      padding:10px 28px;
+      font-size:18px;
+      background:transparent;
+      border:2px solid white;
+      color:white;
+      border-radius:30px;
+      cursor:pointer;
+      transition:all .3s ease;
+    }
+    .play-btn:hover,.more-btn:hover{
+      background:white;
+      color:black;
+      transform:scale(1.05);
+    }
+    .more-btn{
+      margin-left:10px;
+    }
+    .video-row{
+      display:flex;
+      justify-content:center;
+      gap:40px;
+      padding:40px 25px;
+      background:linear-gradient(to top,rgba(0,0,0,.9) 30%,rgba(0,0,0,0) 100%);
+      width:100%;
+      position:relative;
+      z-index:2;
+      transform:translateY(-300px);
+    }
+    .video-item{
+      text-align:center;
+      font-size:100px;
+      letter-spacing:3px;
+    }
+    .video-thumb{
+      width:150px;
+      height:100px;
+      transition:.3s;
+      opacity:.8;
+      cursor:pointer;
+      object-fit:cover;
+      border-radius:14px;
+      margin-top:10px;
+      box-shadow:0 4px 12px rgba(0,0,0,.7);
+    }
+    .video-thumb.active{
+      transform:scale(1.5);
+      opacity:1;z-index:20;
+    }
+.detail-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    
+    width: 30%;
+    height: 100%;
+    
+     margin-top: 20px;
+    align-items: flex-start;
+    z-index: 999;
+    pointer-events: auto;
+    padding: 20px;
+    overflow-y: auto; /* scroll jika tinggi */
+}
+
+
+.detail-box {
+    background: #111;
+    border-radius: 12px;
+    padding: 15px;
+    width: 95%;           /* hampir full-width */
+    max-width: none;      /* hilangkan max-width */
+    max-height: 95vh;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow-y: auto;
+    font-family: 'Arial', sans-serif; /* ganti font */
+}
+
+    .detail-video {
+    width: 100%;
+    height: auto;
+    max-height: 250px; /* batasi tinggi video */
+    border-radius: 12px;
+}
+
+
+
+.detail-info {
+  text-align: left;
+ ;
+}
+
+.detail-title {
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: -30px;
+    
+}
+
+.detail-titlee {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: -25px;
+    color: #979797b3; /* sedikit abu untuk “Tentang” */
+}
+
+.detail-desc {
+    font-size: 14px; /* lebih kecil */
+    line-height: 1.4;
+    margin-bottom: -10px;
+    color: #ffffff;
+}
+
+
+table {
+  border-collapse: collapse;
+  width: auto;
+}
+
+table td {
+  padding: 2px 4px;
+  font-size: 14px;
+  color: #bbb;
+}
+
+table td.colon {
+  width: 10px;      /* kecilkan banget kolom ":" */
+  padding: 0 2px;   /* rapatin kiri-kanan */
+  text-align: center;
+}
+
+
+   .close-x {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: white;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1000; /* pastikan di atas video */
+}
+
+.close-x:hover { color: red; }
+  </style>
+</head>
+<body>
+
+  <div class="side-text">
+    <div class="small">for the love of</div>
+    <div class="big">My Live</div>
+    <button class="play-btn" onclick="togglePlay()">▶ Play</button>
+    <button class="more-btn" onclick="showMainDetail()">ℹ Selengkapnya</button>
+  </div>
+
+  <video class="main-video" id="mainVideo" src="vina.mp4" loop></video>
+
+  <!-- Hanya satu detail box -->
+  <div class="detail-container" id="detailContainer"> 
+  <div class="detail-box">
+    <button class="close-x" onclick="closeDetail()">✕</button>
+    <video class="detail-video" id="detailVideo" controls></video>
+    <h1 class="detail-title" id="detailTitle"></h1>
+    <h2 class="detail-titlee">Tentang</h2>
+    <p class="detail-desc" id="detailAbout"></p>
+    <table>
+      <tr>
+        <td><strong>Tanggal</strong></td>
+        <td>:</td>
+        <td id="detailTime"></td>
+      </tr>
+      <tr>
+        <td><strong></strong></td>
+        <td></td>
+        <td id="detailJam"></td>
+      </tr>
+      <tr>
+        <td><strong>Tempat</strong></td>
+        <td>:</td>
+        <td id="detailPlace"></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+  <!-- Thumbnails -->
+  <div class="video-row">
+    <div class="video-item">
+      L
+      <video class="video-thumb" src="vina1.mp4" muted
+  data-title="Bedegung"
+  data-about=""
+  data-time="Kamis, 31 Juli 2025"
+  data-jam="20:00 WIB"
+  data-place="<a href='https://www.google.com/maps/place/3%C2%B026'44.5%22S+103%C2%B056'39.5%22E/@-3.4457,103.9417251,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-3.4457!4d103.9443?entry=ttu&g_ep=EgoyMDI1MDgyNS4wIKXMDSoASAFQAw%3D%3D' target='_blank'>Link Maps</a>">
+</video>
+
+
+      O
+      <video class="video-thumb" src="vina2.mp4" muted
+        data-title="Piknik di Danau"
+        data-about="Hari santai di danau dengan pemandangan indah."
+        data-time="Jumat, 1 Agustus 2025 - 09:00 WIB"
+        data-jam="20:00 WIB"
+        data-place='<a href="https://maps.google.com" target="_blank">Link Maps</a>'>
+      </video>
+      V
+      <video class="video-thumb" src="vina3.mp4" muted
+        data-title="Jalan Santai"
+        data-about="Momen kebersamaan saat berjalan sore."
+        data-time="Sabtu, 2 Agustus 2025 - 16:30 WIB"
+        data-jam="20:00 WIB"
+        data-place='<a href="https://maps.google.com" target="_blank">Link Maps</a>'>
+      </video>
+      E
+      <video class="video-thumb" src="vina4.mp4" muted
+        data-title="Malam Api Unggun"
+        data-about="Suasana hangat berkumpul di sekitar api unggun."
+        data-time="Minggu, 3 Agustus 2025 - 21:00 WIB"
+        data-jam="20:00 WIB"
+        data-place='<a href="https://maps.google.com" target="_blank">Link Maps</a>'>
+      </video>
+    </div>
+  </div>
+
+<script>
+  const mainVideo = document.getElementById("mainVideo");
+  const playBtn = document.querySelector(".play-btn");
+  const detailContainer = document.getElementById("detailContainer");
+  const detailVideo = document.getElementById("detailVideo");
+  const detailTitle = document.getElementById("detailTitle");
+  const detailAbout = document.getElementById("detailAbout");
+  const detailTime = document.getElementById("detailTime");
+  const detailJam = document.getElementById('detailJam');
+  const detailPlace = document.getElementById("detailPlace");
+  const thumbs = document.querySelectorAll(".video-thumb");
+
+  thumbs.forEach(video => {
+    video.addEventListener("mouseenter", () => {
+      mainVideo.pause();
+      thumbs.forEach(v => { v.pause(); v.currentTime=0; v.classList.remove("active"); v.muted=true; });
+      video.classList.add("active"); video.muted=false; video.play();
+    });
+    video.addEventListener("mouseleave", () => { video.pause(); video.currentTime=0; video.classList.remove("active"); video.muted=true; });
+    video.addEventListener("click", () => {
+      detailVideo.src = video.src;
+      detailTitle.textContent = video.dataset.title;
+      detailAbout.textContent = video.dataset.about;
+      detailTime.textContent = video.dataset.time;
+      detailJam.textContent = video.dataset.jam;
+      detailPlace.innerHTML = video.dataset.place;
+      detailContainer.style.display = "flex";
+      detailVideo.play();
+    });
+  });
+
+  function closeDetail() {
+    detailVideo.pause();
+    detailContainer.style.display = "none";
+  }
+  function togglePlay(){
+    thumbs.forEach(v=>{ v.pause(); v.currentTime=0; v.classList.remove("active"); v.muted=true; });
+    if(mainVideo.paused){ mainVideo.muted=false; mainVideo.play(); playBtn.textContent="❚❚ Pause"; }
+    else{ mainVideo.pause(); playBtn.textContent="▶ Play"; }
+  }
+  function showMainDetail(){
+    detailVideo.src = mainVideo.src;
+    detailTitle.textContent = "Night Drive";
+    detailAbout.textContent = "Journey back home through the city at night.";
+    detailTime.textContent = "Kamis, 31 Juli 2025";
+    detailJam.textContent = "08:03 WIB";
+    detailPlace.innerHTML = '<a href="https://www.google.com/maps/place/3%C2%B037\'54.5%22S+103%C2%B046\'32.5%22E/@-3.6318,103.7731251,17z" target="_blank">Link Maps</a>';
+    detailContainer.style.display = "flex";
+    detailVideo.play();
+}
+
+</script>
+</body>
+</html>
